@@ -117,7 +117,7 @@ const JORNADA_PADRAO = 44;
 
 const VERTICALS = [{k:"health",label:"Ô Health"},{k:"affinity",label:"Ô Affinity"},{k:"risk",label:"Ô Risk"}];
 const VLABEL = {health:"Ô Health",affinity:"Ô Affinity",risk:"Ô Risk"};
-const CARGOS = ["Diretor(a)","Gerente","Coordenador(a)","Supervisor(a)","Líder de equipe"];
+const CARGOS = ["Diretor(a)","Superintendente","Gerente","Coordenador(a)","Supervisor(a)","Líder de equipe"];
 const CLASSES = ["Gestão","Execução operacional","Apoio e administrativo","Refazer ou corrigir"];
 const CLASS_HINT = {
   "Gestão":"Planejar, acompanhar, desenvolver o time, decidir. Ex.: 1:1, revisar indicadores.",
@@ -263,7 +263,7 @@ function renderDia(){
     <div class="q"><label class="t" for="picos"><span class="num">9</span>Em quais dias ou períodos do mês a sua agenda aperta?</label><div class="hint">Ex.: fechamento, renovações, reunião de resultados</div><input type="text" id="picos" data-in="picos" value="${esc(S.picos)}"></div>
     <div class="q"><span class="t"><span class="num">10</span>Em média, que horas você começa e termina o dia? ${opt}</span>
       <div class="row"><input type="time" id="horaInicio" data-in="horaInicio" value="${esc(S.horaInicio)}" style="width:140px" aria-label="Início"><span>às</span><input type="time" id="horaFim" data-in="horaFim" value="${esc(S.horaFim)}" style="width:140px" aria-label="Fim"></div></div>
-    <div class="q"><span class="t"><span class="num">11</span>Por onde as demandas chegam até você, e de quem?</span><div class="hint">Canais</div><div class="chips">${["Pipedrive","E-mail","WhatsApp","Teams","Telefone","Pessoalmente","Outro canal"].map(o=>multi("canais",o,S.canais)).join("")}</div>${has(S.canais,["Outro canal"])?qual("canaisOutro","Qual outro canal?"):""}<div class="hint">Quem envia</div><div class="chips">${["Diretoria","Meu time","Comercial","Clientes ou RH","Parceiros","Seguradoras ou operadoras","Outra área"].map(o=>multi("origens",o,S.origens)).join("")}</div>${has(S.origens,["Outra área"])?qual("origensOutra","Qual outra área ou pessoa?"):""}</div>
+    <div class="q"><span class="t"><span class="num">11</span>Por onde as demandas chegam até você, e de quem?</span><div class="hint">Canais</div><div class="chips">${["Pipedrive","E-mail","WhatsApp","Teams","Telefone","Pessoalmente","Outro canal"].map(o=>multi("canais",o,S.canais)).join("")}</div>${has(S.canais,["Outro canal"])?qual("canaisOutro","Qual outro canal?"):""}<div class="hint">Quem envia</div><div class="chips">${["Presidência","Diretoria","Meu time","Comercial","Clientes ou RH","Parceiros","Seguradoras ou operadoras","Outra área"].map(o=>multi("origens",o,S.origens)).join("")}</div>${has(S.origens,["Outra área"])?qual("origensOutra","Qual outra área ou pessoa?"):""}</div>
   </div>${nav()}`;
 }
 function actFields(a, key, idx){
