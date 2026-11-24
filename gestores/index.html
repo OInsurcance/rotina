@@ -1,0 +1,498 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>Rotina e Capacity Gestores Ô</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Mesmo visual do questionário operacional (oinsurcance.github.io/rotina) */
+:root{
+  --bg:#f3f4f5; --surface:#ffffff; --surface-2:#f7f8f8; --line:#e2e4e6;
+  --ink:#2b2b2b; --ink-2:#5c5f63; --ink-3:#8c8f93;
+  --brand:#2b2b2b; --health:#85c660; --risk:#ecc627; --affinity:#c8508a;
+  --accent:#2b2b2b; --accent-soft:#ececec; --on-accent:#ffffff;
+  --ok:#3f8f3a; --warn:#b7791f; --bad:#c0392b; --bad-soft:#fbeaea;
+  --f-display:"Montserrat","Segoe UI",system-ui,sans-serif;
+  --f-body:"Inter","Segoe UI",system-ui,sans-serif;
+  --r:12px; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17181a; --surface:#212225; --surface-2:#1b1c1e; --line:#34363a;
+  --ink:#ececec; --ink-2:#b3b5b8; --ink-3:#85888c; --brand:#ececec;
+  --accent:#ececec; --accent-soft:#2e3033; --on-accent:#17181a;
+  --ok:#7cc274; --warn:#e0b25a; --bad:#ec7b6e; --bad-soft:#3a2523; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17181a; --surface:#212225; --surface-2:#1b1c1e; --line:#34363a;
+  --ink:#ececec; --ink-2:#b3b5b8; --ink-3:#85888c; --brand:#ececec;
+  --accent:#ececec; --accent-soft:#2e3033; --on-accent:#17181a;
+  --ok:#7cc274; --warn:#e0b25a; --bad:#ec7b6e; --bad-soft:#3a2523; color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+body[data-v="health"]{--accent:var(--health);--accent-soft:color-mix(in srgb,var(--health) 18%,transparent);--on-accent:#1d2a14}
+body[data-v="risk"]{--accent:var(--risk);--accent-soft:color-mix(in srgb,var(--risk) 22%,transparent);--on-accent:#2b2410}
+body[data-v="affinity"]{--accent:var(--affinity);--accent-soft:color-mix(in srgb,var(--affinity) 16%,transparent);--on-accent:#ffffff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.top-in{max-width:760px;margin:0 auto;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:-.01em;color:var(--brand)}
+.logo small{font-weight:500;color:var(--ink-3);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-left:6px}
+.progress{height:4px;background:var(--line)}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
+main{max-width:760px;margin:0 auto;padding-block:28px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(26px,5vw,34px);font-weight:800;line-height:1.15}
+h2{font-size:22px;font-weight:700}
+h3{font-size:15px;font-weight:700}
+.eyebrow{font:600 12px var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)}
+.lead{color:var(--ink-2);max-width:62ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.q{display:flex;flex-direction:column;gap:10px}
+.q label.t,.q .t{font-weight:600;color:var(--ink)}
+.q .hint{color:var(--ink-3);font-size:13px;margin-top:-6px}
+.num{color:var(--ink-3);font-family:var(--f-display);font-weight:700;margin-right:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:500 14px var(--f-body);padding:8px 14px;border-radius:999px;cursor:pointer;line-height:1.2}
+.chip:hover{border-color:var(--ink-3)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+.chip.big{padding:14px 18px;border-radius:10px;text-align:left;flex:1 1 200px}
+.chip.big b{display:block;font-family:var(--f-display);font-size:15px}
+input[type=text],input[type=number],input[type=time],textarea{font:400 15px var(--f-body);color:var(--ink);background:var(--surface-2);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea{min-height:84px;resize:vertical}
+input:focus,textarea:focus,.chip:focus-visible,.btn:focus-visible,.act-head:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row > *{min-width:0}
+.inline-num{width:96px!important}
+.btns{display:flex;gap:10px;justify-content:space-between;margin-top:8px;flex-wrap:wrap}
+.btn{font:600 15px var(--f-body);border-radius:10px;padding:12px 20px;cursor:pointer;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn[disabled]{opacity:.5;cursor:default}
+.note{font-size:13px;color:var(--ink-2);background:var(--surface-2);border:1px dashed var(--line);border-radius:10px;padding:12px 14px}
+.note.err{background:var(--bad-soft);border-color:var(--bad);color:var(--ink)}
+.legend{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.legend div{background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink-2)}
+.legend b{display:block;color:var(--ink);font-size:14px}
+.grp{font:600 12px var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin:8px 0 -2px}
+/* atividades */
+.act{border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.act.on{border-color:var(--accent)}
+.act.miss{border-color:var(--bad)}
+.act-head{display:flex;gap:12px;align-items:center;padding:14px 16px;cursor:pointer;width:100%;background:none;border:0;text-align:left;font:500 15px var(--f-body);color:var(--ink)}
+.box{flex:0 0 22px;height:22px;border-radius:6px;border:2px solid var(--ink-3);display:grid;place-items:center}
+.act.on .box{background:var(--accent);border-color:var(--accent)}
+.act.on .box::after{content:"";width:10px;height:6px;border-left:2.5px solid var(--on-accent);border-bottom:2.5px solid var(--on-accent);transform:rotate(-45deg) translate(1px,-1px)}
+.act-body{padding:4px 16px 18px 50px;display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line);background:var(--surface-2)}
+.act-body .q{gap:8px}
+.act-body .t{font-size:13px;font-weight:600;color:var(--ink-2)}
+.act-body .chip{font-size:13px;padding:6px 11px}
+.calc{font-size:13px;color:var(--ink-2)}
+.calc b{color:var(--ink);font-variant-numeric:tabular-nums}
+.custom-name{font-weight:600}
+.del{margin-left:auto;background:none;border:0;color:var(--ink-3);cursor:pointer;font:500 13px var(--f-body);text-decoration:underline}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.summary div{background:var(--surface-2);border-radius:10px;padding:12px}
+.summary b{display:block;font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}
+.summary span{font-size:12px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.done{text-align:center;padding:40px 20px}
+.done .ring{margin:0 auto 18px}
+@media (max-width:560px){.logo small{display:none}.logo{white-space:nowrap}.act-body{padding-left:16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="logo" aria-label="Ô Insurance">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="14" r="8.5" fill="none" stroke="var(--brand)" stroke-width="4"/><path d="M6.2 9.2 A8.5 8.5 0 0 1 19.8 9.2" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/></svg>
+      ô insurance<small>Máquina Operacional · Gestores</small>
+    </div>
+  </div>
+  <div class="progress" id="progressWrap"><i id="progress" style="width:0%"></i></div>
+</header>
+<main id="app"><div class="card"><p class="lead">Carregando o questionário…</p></div></main>
+
+<script>
+(() => {
+/* URL do App da Web do Google Apps Script da planilha dos GESTORES (Implantar › App da Web). Vazio = envio desativado. */
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzfeAjyoSXcXPuT7bEcsdQZAMAgkNsI1Ej8Rl-rimi-bJGFGOFhNZG472Wb-4-p4Bb5ew/exec";
+const JORNADA_PADRAO = 44;
+
+const VERTICALS = [{k:"health",label:"Ô Health"},{k:"affinity",label:"Ô Affinity"},{k:"risk",label:"Ô Risk"}];
+const VLABEL = {health:"Ô Health",affinity:"Ô Affinity",risk:"Ô Risk"};
+const CARGOS = ["Diretor(a)","Gerente","Coordenador(a)","Supervisor(a)","Líder de equipe"];
+const CLASSES = ["Gestão","Execução operacional","Apoio e administrativo","Refazer ou corrigir"];
+const CLASS_HINT = {
+  "Gestão":"Planejar, acompanhar, desenvolver o time, decidir. Ex.: 1:1, revisar indicadores.",
+  "Execução operacional":"Fazer o trabalho do time. Ex.: cotar, emitir, atender cliente da carteira.",
+  "Apoio e administrativo":"Necessário, mas burocrático. Ex.: aprovar férias, montar planilha.",
+  "Refazer ou corrigir":"Algo que voltou ou veio errado. Ex.: corrigir proposta do time."
+};
+/* Atividades sugeridas: [nome, classe sugerida]. As de cada vertical aparecem só para ela. */
+const ACT_BASE = [
+  ["Reuniões individuais (1:1) com pessoas do time","Gestão"],
+  ["Reunião de equipe ou alinhamento diário","Gestão"],
+  ["Acompanhar indicadores, metas e prazos da área","Gestão"],
+  ["Planejar e priorizar as demandas da semana","Gestão"],
+  ["Distribuir demandas e acompanhar o andamento do time","Gestão"],
+  ["Dar feedback, treinar e desenvolver o time","Gestão"],
+  ["Recrutar, entrevistar e integrar pessoas novas","Gestão"],
+  ["Preparar e apresentar resultados para a diretoria","Gestão"],
+  ["Reuniões estratégicas com clientes, parceiros ou seguradoras","Gestão"],
+  ["Conduzir projetos e melhorias de processo","Gestão"],
+  ["Executar tarefas operacionais do time (cotar, emitir, movimentar, conciliar)","Execução operacional"],
+  ["Atender clientes, RH, parceiros ou corretores diretamente","Execução operacional"],
+  ["Resolver casos escalados e problemas críticos","Execução operacional"],
+  ["Revisar ou aprovar o trabalho do time antes de seguir","Execução operacional"],
+  ["Cobrir ausência ou falta de alguém do time","Execução operacional"],
+  ["Responder e-mails, WhatsApp e Teams","Apoio e administrativo"],
+  ["Montar relatórios e planilhas à mão","Apoio e administrativo"],
+  ["Aprovações administrativas (ponto, férias, despesas, compras)","Apoio e administrativo"],
+  ["Atualizar Pipedrive, controles e cadastros","Apoio e administrativo"],
+  ["Reuniões com outras áreas internas","Apoio e administrativo"],
+  ["Corrigir erros do time","Refazer ou corrigir"],
+  ["Ir atrás de informação que deveria ter chegado completa","Refazer ou corrigir"],
+];
+const ACT_VERT = {
+  health:[["Acompanhar sinistralidade e reajustes da carteira","Gestão"],["Negociar com operadoras (taxas, renovações, pendências)","Execução operacional"],["Acompanhar implantações até a ativação do contrato","Execução operacional"],["Conferir faturas e coparticipação junto com o time","Execução operacional"]],
+  affinity:[["Acompanhar a produção e as emissões dos canais e parceiros","Gestão"],["Conduzir a implantação de novos parceiros no Ô 360","Execução operacional"],["Acompanhar sinistros relevantes e negativas","Execução operacional"],["Conciliar prêmios, repasses e comissões","Apoio e administrativo"]],
+  risk:[["Acompanhar o funil de vendas e as renovações no Pipedrive","Gestão"],["Negociar com seguradoras (taxas, limites de crédito)","Execução operacional"],["Atender ou visitar clientes da carteira","Execução operacional"],["Analisar contratos, editais e garantias junto com o time","Execução operacional"]]
+};
+const PERIODS = [["dia","por dia"],["semana","por semana"],["quinzena","por quinzena"],["mes","por mês"]];
+const PER_WEEK = {dia:5,semana:1,quinzena:0.5,mes:1/4.3};
+const MINUTES = [5,10,15,30,45,60,90,120];
+const TOOLS = ["Pipedrive","Quiver","Portal da seguradora/operadora","Ô 360","Planilha","Pasta na rede","Power BI","IA (Claude, ChatGPT etc.)","E-mail","WhatsApp","Teams","Outra"];
+const DELEG = ["Sim, já tenho quem faça","Sim, se eu preparar alguém","Não, precisa ser eu"];
+const WHATS = {"Menos de 30 min":0.25,"30 min a 1h":0.75,"1h a 2h":1.5,"2h a 3h":2.5,"Mais de 3h":3.5};
+const PCT = ["Até 20%","20% a 40%","40% a 60%","60% a 80%","Mais de 80%"];
+const STEPS = [
+  {k:"intro",t:"Início"},{k:"id",t:"Identificação"},{k:"dia",t:"O seu dia"},{k:"ativ",t:"Onde vai o seu tempo"},
+  {k:"agenda",t:"Agenda e interrupções"},{k:"time",t:"Gestão do time"},{k:"ferr",t:"Ferramentas"},{k:"ctrl",t:"Controle e continuidade"},{k:"perc",t:"Percepção"},{k:"rev",t:"Revisão"}
+];
+
+const blank = () => ({nome:"",vertical:"",cargo:"",cargoOutro:"",area:"",tempoCargo:"",timeQtd:"",carteiraQtd:"",
+  dia:"",picos:"",horaInicio:"",horaFim:"",canais:[],canaisOutro:"",origens:[],origensOutra:"",
+  atividades:{},extras:[],
+  reunioesQtd:"",reunioesHoras:"",whatsapp:"",interrupcoes:"",escalonamentos:"",retrabalhoVezes:"",retrabalhoMin:"",origemOpts:[],origemOutra:"",origemIncompleto:"",
+  ritos:[],indicadores:"",distribuicao:"",sobrecarga:"",folga:"",delegar:"",delegarFalta:[],delegarFaltaOutro:"",soVoce:"",revisa:"",contratar:"",perfilContratar:"",
+  sistemas:[],sistemasOutros:"",duplicidade:"",ferramentaAtrapalha:"",contaPessoal:"",
+  historico:[],historicoOutro:"",prazo:"",atraso:"",ausencia:"",ausenciaFalta:"",avaliado:"",
+  carga:"",horaExtra:"",pctGestaoHoje:"",pctGestaoIdeal:"",deixaDeFazer:"",menorValor:"",automatizar:"",precisaCrescer:"",oportunidades:"",comentario:"",
+  status:"rascunho"});
+let S = blank(), step = 0, myId = null;
+let saving = Promise.resolve(), missing = new Set();
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const num = v => { const n = parseFloat(String(v).replace(",", ".")); return isFinite(n) ? n : 0; };
+const fmt = (n,d=1) => n.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const chip = (field, val, cur, extra="") => `<button type="button" class="chip" data-f="${field}" data-v="${esc(val)}" aria-pressed="${cur===val}" ${extra}>${esc(val)}</button>`;
+const multi = (field, val, arr) => `<button type="button" class="chip" data-m="${field}" data-v="${esc(val)}" aria-pressed="${(arr||[]).includes(val)}">${esc(val)}</button>`;
+const has = (arr, list) => (arr||[]).some(x=>list.includes(x));
+const qual = (field, ph="Qual? Descreva") => `<input type="text" id="${field}" data-in="${field}" value="${esc(S[field])}" placeholder="${ph}">`;
+const opt = `<span style="font-weight:400;color:var(--ink-3)">(opcional)</span>`;
+const roleOf = r => r.cargo==="Outro" ? ("Outro: "+(r.cargoOutro||"não informado")) : (r.cargo||"");
+
+function suggested(v){ return ACT_BASE.concat(ACT_VERT[v]||[]); }
+const SUG_CLASS = {}; ACT_BASE.concat(...Object.values(ACT_VERT)).forEach(([n,c])=>SUG_CLASS[n]=c);
+function actHours(a){ return num(a.qtd) * (PER_WEEK[a.periodo]||0) * num(a.minutos) / 60; }
+function allActs(s){ const ok = new Set(suggested(s.vertical).map(x=>x[0])); const out=[]; Object.entries(s.atividades||{}).forEach(([n,a])=>{ if(a&&a.on&&ok.has(n)) out.push({...a,nome:n,sugerida:true}); }); (s.extras||[]).forEach(a=>{ if(a&&a.nome&&a.nome.trim()) out.push({...a,sugerida:false}); }); return out; }
+function actMissing(a){ const m=[]; if(!num(a.qtd)) m.push("quantas vezes"); if(!a.periodo) m.push("período"); if(!num(a.minutos)) m.push("minutos"); if(!a.classe) m.push("classificação"); return m; }
+
+/* ---------- persistência ---------- */
+const LS = "rotina-capacity-gestores-v1";
+function localSave(){ try{ localStorage.setItem(LS, JSON.stringify({S,step})); }catch(e){} }
+function localLoad(){ try{ return JSON.parse(localStorage.getItem(LS)||"null"); }catch(e){ return null; } }
+const LS_ID = "rotina-capacity-gestores-id";
+function getId(){
+  let id = null;
+  try{ id = localStorage.getItem(LS_ID); }catch(e){}
+  if(!id){
+    id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "g-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,10);
+    try{ localStorage.setItem(LS_ID, id); }catch(e){}
+  }
+  return id;
+}
+/* rascunho fica só no navegador; a planilha recebe as respostas quando a pessoa clica em Enviar */
+function persist(status){
+  if(status) S.status = status;
+  localSave();
+  if(status!=="enviado") return Promise.resolve(false);
+  if(!SHEET_URL) return Promise.reject(new Error("sem-url"));
+  const payload = buildPayload({...S, _id:myId, atualizadoEm:new Date().toISOString()});
+  saving = saving.catch(()=>{}).then(() => fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)})).then(()=>true);
+  return saving;
+}
+
+/* ---------- formulário ---------- */
+function setVertical(){ document.body.dataset.v = S.vertical || ""; }
+function progress(){ $("#progress").style.width = Math.round(step/(STEPS.length-1)*100) + "%"; }
+function head(i){ return `<div class="stack" style="gap:6px"><span class="eyebrow">Etapa ${i} de ${STEPS.length-2} · ${STEPS[step].t}</span>`; }
+function nav(nextLabel="Continuar", back=true){ return `<div class="btns">${back?`<button type="button" class="btn" data-go="-1">Voltar</button>`:"<span></span>"}<button type="button" class="btn primary" data-go="1">${nextLabel}</button></div>`; }
+
+function renderIntro(){
+  const warn = !SHEET_URL ? `<div class="note err">O envio das respostas ainda não está configurado. Você pode preencher (fica salvo neste navegador), mas avise o Leonardo antes de enviar.</div>` : "";
+  const sent = S.status==="enviado" ? `<div class="note">Você já enviou suas respostas. Pode revisar e reenviar se quiser ajustar algo.</div>` : "";
+  return `<div class="stack">
+    <span class="eyebrow">Máquina Operacional · Gestores de Ô Health, Ô Affinity e Ô Risk</span>
+    <h1>Como é o seu dia como gestor(a)?</h1>
+    <p class="lead">Depois de ouvir o time operacional, queremos entender a rotina de quem lidera: onde você concentra tempo e energia, quanto vai para gestão de fato e quanto vai para execução, administrativo e apagar incêndio.</p>
+    <div class="card stack" style="gap:10px">
+      <h3>Antes de começar</h3>
+      <p style="margin:0"><b>Isto não é uma avaliação de desempenho.</b> O objetivo é dimensionar a capacidade de gestão, enxergar o que pode ser delegado ou automatizado e liberar tempo para o que só você pode fazer.</p>
+      <p style="margin:0;color:var(--ink-2)">Pense em uma <b>semana típica</b>. Estimativas aproximadas são suficientes. Leva cerca de 25 a 35 minutos, e o que você preencher fica salvo neste navegador a cada etapa.</p>
+    </div>
+    ${warn}${sent}
+    ${nav("Começar", false)}
+  </div>`;
+}
+function renderId(){
+  return `<div class="stack">${head(1)}<h2>Quem é você</h2></div>
+  <div class="card stack">
+    <div class="q"><label class="t" for="nome"><span class="num">1</span>Nome completo</label><input type="text" id="nome" data-in="nome" value="${esc(S.nome)}" autocomplete="name"></div>
+    <div class="q"><span class="t"><span class="num">2</span>Vertical</span><div class="chips">${VERTICALS.map(x=>`<button type="button" class="chip big" data-vert="${x.k}" aria-pressed="${S.vertical===x.k}"><b>${x.label}</b></button>`).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">3</span>Cargo</span><div class="chips">${CARGOS.concat(["Outro"]).map(o=>`<button type="button" class="chip" data-f="cargo" data-v="${esc(o)}" aria-pressed="${S.cargo===o}">${esc(o)}</button>`).join("")}</div>${S.cargo==="Outro"?qual("cargoOutro","Qual é o seu cargo?"):""}</div>
+    <div class="q"><label class="t" for="area"><span class="num">4</span>Qual área ou quais times você lidera?</label><input type="text" id="area" data-in="area" value="${esc(S.area)}" placeholder="Ex.: Movimentação e Placement de Health"></div>
+    <div class="q"><span class="t"><span class="num">5</span>Há quanto tempo você está neste cargo?</span><div class="chips">${["Menos de 6 meses","6 a 12 meses","1 a 3 anos","Mais de 3 anos"].map(o=>chip("tempoCargo",o,S.tempoCargo)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">6</span>Quantas pessoas respondem a você, direta ou indiretamente?</span><div class="row"><input type="number" min="0" class="inline-num" id="timeQtd" data-in="timeQtd" value="${esc(S.timeQtd)}" aria-label="Pessoas no time"><span>pessoas</span></div></div>
+    <div class="q"><span class="t"><span class="num">7</span>Quantos clientes, contratos ou programas a sua área atende hoje?</span><div class="row"><input type="number" min="0" class="inline-num" id="carteiraQtd" data-in="carteiraQtd" value="${esc(S.carteiraQtd)}" aria-label="Quantidade de clientes"><span>clientes, contratos ou programas</span>${chip("carteiraQtd","Não sei",S.carteiraQtd)}</div></div>
+    ${missing.size?`<div class="note err">Preencha nome, vertical e cargo para continuar${missing.has("cargoOutro")?" (escreva qual é o seu cargo)":""}.</div>`:""}
+  </div>${nav()}`;
+}
+function renderDia(){
+  return `<div class="stack">${head(2)}<h2>O seu dia</h2></div>
+  <div class="card stack">
+    <div class="q"><label class="t" for="dia"><span class="num">8</span>Descreva em poucas linhas como é um dia normal seu, do início ao fim.</label><textarea id="dia" data-in="dia" placeholder="Ex.: começo vendo os números do dia anterior, depois daily com o time…">${esc(S.dia)}</textarea></div>
+    <div class="q"><label class="t" for="picos"><span class="num">9</span>Em quais dias ou períodos do mês a sua agenda aperta?</label><div class="hint">Ex.: fechamento, renovações, reunião de resultados</div><input type="text" id="picos" data-in="picos" value="${esc(S.picos)}"></div>
+    <div class="q"><span class="t"><span class="num">10</span>Em média, que horas você começa e termina o dia? ${opt}</span>
+      <div class="row"><input type="time" id="horaInicio" data-in="horaInicio" value="${esc(S.horaInicio)}" style="width:140px" aria-label="Início"><span>às</span><input type="time" id="horaFim" data-in="horaFim" value="${esc(S.horaFim)}" style="width:140px" aria-label="Fim"></div></div>
+    <div class="q"><span class="t"><span class="num">11</span>Por onde as demandas chegam até você, e de quem?</span><div class="hint">Canais</div><div class="chips">${["Pipedrive","E-mail","WhatsApp","Teams","Telefone","Pessoalmente","Outro canal"].map(o=>multi("canais",o,S.canais)).join("")}</div>${has(S.canais,["Outro canal"])?qual("canaisOutro","Qual outro canal?"):""}<div class="hint">Quem envia</div><div class="chips">${["Diretoria","Meu time","Comercial","Clientes ou RH","Parceiros","Seguradoras ou operadoras","Outra área"].map(o=>multi("origens",o,S.origens)).join("")}</div>${has(S.origens,["Outra área"])?qual("origensOutra","Qual outra área ou pessoa?"):""}</div>
+  </div>${nav()}`;
+}
+function actFields(a, key, idx){
+  const pre = idx==null ? `data-a="${esc(key)}"` : `data-x="${idx}"`;
+  const h = actHours(a);
+  const ch = (f,val,cur,label) => `<button type="button" class="chip" ${pre} data-af="${f}" data-v="${esc(val)}" aria-pressed="${cur===val}">${esc(label||val)}</button>`;
+  const mch = (f,val,arr) => `<button type="button" class="chip" ${pre} data-am="${f}" data-v="${esc(val)}" aria-pressed="${(arr||[]).includes(val)}">${esc(val)}</button>`;
+  const iid = (idx==null?"a-"+[...key].reduce((s,c)=>(s*31+c.charCodeAt(0))|0,7):"x-"+idx);
+  return `<div class="act-body">
+    <div class="q"><span class="t">Quantas vezes você faz isso?</span><div class="row"><input type="number" min="0" step="1" inputmode="numeric" class="inline-num" id="${iid}-q" ${pre} data-ai="qtd" value="${esc(a.qtd||"")}" aria-label="Quantidade"><div class="chips">${PERIODS.map(([k,l])=>ch("periodo",k,a.periodo,l)).join("")}</div></div></div>
+    <div class="q"><span class="t">Quanto tempo leva cada vez (minutos)?</span><div class="row"><div class="chips">${MINUTES.map(m=>ch("minutos",String(m),String(a.minutos||""),m<60?m+" min":(m%60?Math.floor(m/60)+"h"+(m%60):(m/60)+"h"))).join("")}</div><input type="number" min="0" step="1" inputmode="numeric" class="inline-num" id="${iid}-m" ${pre} data-ai="minutos" value="${MINUTES.includes(num(a.minutos))?"":esc(a.minutos||"")}" aria-label="Outro valor em minutos" placeholder="outro"></div></div>
+    <div class="q"><span class="t">Como você classifica esta atividade?</span><div class="chips">${CLASSES.map(c=>ch("classe",c,a.classe)).join("")}</div></div>
+    <div class="q"><span class="t">Daria para delegar?</span><div class="chips">${DELEG.map(c=>ch("delegavel",c,a.delegavel)).join("")}</div></div>
+    <div class="q"><span class="t">Poderia ser automática?</span><div class="chips">${["Sim","Em parte","Não","Não sei"].map(c=>ch("auto",c,a.auto)).join("")}</div></div>
+    <div class="q"><span class="t">Ferramentas que usa ${opt}</span><div class="chips">${TOOLS.map(t=>mch("ferramentas",t,a.ferramentas)).join("")}</div>${(a.ferramentas||[]).includes("Outra")?`<input type="text" id="${iid}-fo" ${pre} data-ai="ferramentasOutra" value="${esc(a.ferramentasOutra||"")}" placeholder="Qual outra ferramenta?">`:""}</div>
+    <div class="q"><span class="t">Depende de outra pessoa ou área? ${opt}</span><div class="row"><div class="chips">${ch("depende","Não",a.depende)}${ch("depende","Sim",a.depende)}</div>${a.depende==="Sim"?`<input type="text" id="${iid}-d" ${pre} data-ai="dependeDe" value="${esc(a.dependeDe||"")}" placeholder="De quem?" style="flex:1 1 200px">`:""}</div></div>
+    <div class="calc" data-calc>${h?`≈ <b>${fmt(h)} h por semana</b>`:"Preencha quantidade, período e minutos para ver o tempo semanal."}</div>
+  </div>`;
+}
+function summaryHTML(){
+  const acts = allActs(S); const tot = acts.reduce((s,a)=>s+actHours(a),0);
+  const by = {}; CLASSES.forEach(c=>by[c]=0); acts.forEach(a=>{ if(by[a.classe]!=null) by[a.classe]+=actHours(a); });
+  const pg = tot ? Math.round(by["Gestão"]/tot*100) : 0;
+  return `<div class="summary" data-sum><div><span>Atividades</span><b>${acts.length}</b></div><div><span>Tempo somado</span><b>${fmt(tot)} h/sem</b></div><div><span>Em gestão</span><b>${tot?pg+"%":"—"}</b></div>${CLASSES.slice(1).map(c=>`<div><span>${c}</span><b>${fmt(by[c])} h</b></div>`).join("")}</div>`;
+}
+function renderAtiv(){
+  if(!S.vertical) return `<div class="stack">${head(3)}<h2>Onde vai o seu tempo</h2></div><div class="note err">Volte e escolha a sua vertical primeiro.</div>${nav()}`;
+  const list = suggested(S.vertical);
+  const card = ([n]) => { const a = S.atividades[n]||{}; const miss = missing.has(n); return `<div class="act ${a.on?"on":""} ${miss?"miss":""}"><button type="button" class="act-head" data-toggle="${esc(n)}" aria-expanded="${!!a.on}"><span class="box"></span><span>${esc(n)}</span></button>${a.on?actFields(a,n,null):""}</div>`; };
+  const vertList = ACT_VERT[S.vertical]||[];
+  const groups = CLASSES.map(c=>{ const items = ACT_BASE.filter(x=>x[1]===c); return items.length?`<div class="grp">${c}</div>${items.map(card).join("")}`:""; }).join("")
+    + (vertList.length?`<div class="grp">Específicas de ${esc(VLABEL[S.vertical])}</div>${vertList.map(card).join("")}`:"");
+  const extras = (S.extras||[]).map((a,i)=>{ const miss = missing.has("x"+i); return `<div class="act on ${miss?"miss":""}"><div class="act-head" style="cursor:default"><span class="box"></span><input type="text" class="custom-name" id="xn-${i}" data-x="${i}" data-ai="nome" value="${esc(a.nome||"")}" placeholder="Descreva a atividade"><button type="button" class="del" data-delx="${i}">Remover</button></div>${actFields(a,null,i)}</div>`; }).join("");
+  return `<div class="stack">${head(3)}<h2>Onde vai o seu tempo</h2>
+    <p class="lead" style="margin:0">Marque as atividades que <b>você faz pessoalmente</b> e responda os campos de cada uma. A classificação já vem sugerida, mas você pode mudar. Se fizer algo que não está na lista, use <b>Adicionar outra atividade</b> no final. Volume de reuniões, mensagens e interrupções fica para a próxima etapa.</p></div>
+  <div class="legend">${CLASSES.map(c=>`<div><b>${c}</b>${CLASS_HINT[c]}</div>`).join("")}</div>
+  <div class="stack" style="gap:10px">${groups}
+    ${extras?`<div class="grp">Outras atividades suas</div>${extras}`:""}
+    ${(S.extras||[]).length<10?`<button type="button" class="btn" data-addx style="align-self:flex-start">+ Adicionar outra atividade</button>`:""}
+  </div>
+  <div class="card">${summaryHTML()}</div>
+  ${missing.size?`<div class="note err">Algumas atividades marcadas estão sem quantidade, período, minutos ou classificação (destacadas em vermelho). Você pode completar agora ou continuar e ajustar depois.</div>`:""}
+  ${nav()}`;
+}
+function renderAgenda(){
+  return `<div class="stack">${head(4)}<h2>Agenda e interrupções</h2></div>
+  <div class="card stack">
+    <div class="q"><span class="t"><span class="num">12</span>Reuniões por semana (todas: time, diretoria, clientes, outras áreas)</span><div class="row"><input type="number" min="0" class="inline-num" id="reunioesQtd" data-in="reunioesQtd" value="${esc(S.reunioesQtd)}" aria-label="Quantidade de reuniões"><span>reuniões, somando</span><input type="number" min="0" step="0.5" class="inline-num" id="reunioesHoras" data-in="reunioesHoras" value="${esc(S.reunioesHoras)}" aria-label="Horas de reunião"><span>horas no total</span></div></div>
+    <div class="q"><span class="t"><span class="num">13</span>Por dia, quanto tempo você gasta respondendo WhatsApp, e-mail e Teams?</span><div class="chips">${Object.keys(WHATS).map(o=>chip("whatsapp",o,S.whatsapp)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">14</span>Quantas vezes por dia alguém do time te interrompe com dúvida ou pedido de decisão?</span><div class="chips">${["0 a 2","3 a 5","6 a 10","11 a 20","Mais de 20"].map(o=>chip("interrupcoes",o,S.interrupcoes)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">15</span>Quantos casos por semana são escalados para você resolver?</span><div class="chips">${["Nenhum","1 a 3","4 a 10","Mais de 10"].map(o=>chip("escalonamentos",o,S.escalonamentos)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">16</span>Quantas vezes por semana você precisa refazer, corrigir ou ir atrás de algo que deveria ter chegado certo?</span><div class="row"><input type="number" min="0" class="inline-num" id="retrabalhoVezes" data-in="retrabalhoVezes" value="${esc(S.retrabalhoVezes)}" aria-label="Vezes por semana"><span>vezes, e cada vez leva em média</span><input type="number" min="0" class="inline-num" id="retrabalhoMin" data-in="retrabalhoMin" value="${esc(S.retrabalhoMin)}" aria-label="Minutos"><span>minutos</span></div></div>
+    <div class="q"><span class="t"><span class="num">17</span>De onde vem a maior parte do que chega errado ou incompleto?</span><div class="chips">${["Meu time","Comercial","Clientes ou RH","Parceiros","Seguradoras ou operadoras","Outra área"].map(o=>multi("origemOpts",o,S.origemOpts)).join("")}</div>${has(S.origemOpts,["Outra área"])?qual("origemOutra","Qual outra área?"):""}<input type="text" id="origemIncompleto" data-in="origemIncompleto" value="${esc(S.origemIncompleto)}" placeholder="Quer detalhar? (opcional)"></div>
+  </div>${nav()}`;
+}
+function renderTime(){
+  return `<div class="stack">${head(5)}<h2>Gestão do time</h2></div>
+  <div class="card stack">
+    <div class="q"><span class="t"><span class="num">18</span>Quais ritos você mantém com o time?</span><div class="hint">Marque todos que acontecem de verdade.</div><div class="chips">${["Daily ou alinhamento diário","Reunião semanal de equipe","1:1 periódico","Reunião mensal de resultados","Nenhum rito fixo"].map(o=>multi("ritos",o,S.ritos)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">19</span>Como você acompanha os indicadores da área?</span><div class="chips">${["Painel automático (Power BI, sistema)","Planilha atualizada à mão","Pergunto ao time quando preciso","Não acompanho indicadores hoje"].map(o=>chip("indicadores",o,S.indicadores)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">20</span>Como o trabalho é distribuído no time?</span><div class="chips">${["Por carteira fixa de clientes","Eu distribuo caso a caso","Fila ou sistema distribui","Cada um pega o que chega","Misto"].map(o=>chip("distribuicao",o,S.distribuicao)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">21</span>Hoje há pessoas sobrecarregadas no time?</span><div class="chips">${["Não","Uma ou duas","A maior parte do time"].map(o=>chip("sobrecarga",o,S.sobrecarga)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">22</span>E há pessoas com folga ou capacidade sobrando?</span><div class="chips">${["Não","Uma ou duas","Boa parte do time"].map(o=>chip("folga",o,S.folga)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">23</span>Você consegue delegar o quanto gostaria?</span><div class="chips">${["Sim","Em parte","Não"].map(o=>chip("delegar",o,S.delegar)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">24</span>O que falta para delegar mais?</span><div class="chips">${["Pessoa preparada no time","Tempo para treinar alguém","Confiança na qualidade da entrega","Processo documentado","Acesso a sistema para outra pessoa","Nada, já delego o que dá","Outro"].map(o=>multi("delegarFalta",o,S.delegarFalta)).join("")}</div>${has(S.delegarFalta,["Outro"])?qual("delegarFaltaOutro","O que mais?"):""}</div>
+    <div class="q"><label class="t" for="soVoce"><span class="num">25</span>O que hoje só você sabe ou consegue fazer na área?</label><textarea id="soVoce" data-in="soVoce">${esc(S.soVoce)}</textarea></div>
+    <div class="q"><span class="t"><span class="num">26</span>Quanto do trabalho do time passa pela sua revisão antes de seguir?</span><div class="chips">${["Praticamente tudo","Uma parte","Só exceções e casos críticos","Nada"].map(o=>chip("revisa",o,S.revisa)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">27</span>Para o volume de hoje, a área precisaria de mais gente?</span><div class="chips">${["Não","Sim, 1 pessoa","Sim, 2 ou mais","Não de gente, mas de processo ou sistema"].map(o=>chip("contratar",o,S.contratar)).join("")}</div>${(S.contratar||"").startsWith("Sim")?qual("perfilContratar","Qual perfil? Ex.: analista de movimentação júnior"):""}</div>
+  </div>${nav()}`;
+}
+function renderFerr(){
+  return `<div class="stack">${head(6)}<h2>Ferramentas</h2></div>
+  <div class="card stack">
+    <div class="q"><span class="t"><span class="num">28</span>Quais sistemas e ferramentas você usa no dia a dia?</span><div class="chips">${["Pipedrive","Quiver","Portais das seguradoras/operadoras","Ô 360","Planilhas","Pasta na rede","Power BI","IA (Claude, ChatGPT etc.)","E-mail","WhatsApp","Teams","Outros"].map(o=>multi("sistemas",o,S.sistemas)).join("")}</div>
+      ${(S.sistemas||[]).includes("Outros")?`<input type="text" id="sistemasOutros" data-in="sistemasOutros" value="${esc(S.sistemasOutros)}" placeholder="Quais outras ferramentas? Descreva">`:""}</div>
+    <div class="q"><label class="t" for="duplicidade"><span class="num">29</span>Você ou o time lançam a mesma informação em mais de um lugar? Qual e onde?</label><input type="text" id="duplicidade" data-in="duplicidade" value="${esc(S.duplicidade)}" placeholder="Ex.: o fechamento vai no Pipedrive e na planilha de controle"></div>
+    <div class="q"><label class="t" for="ferramentaAtrapalha"><span class="num">30</span>Qual ferramenta mais atrapalha ou atrasa a sua gestão, e por quê?</label><input type="text" id="ferramentaAtrapalha" data-in="ferramentaAtrapalha" value="${esc(S.ferramentaAtrapalha)}"></div>
+    <div class="q"><label class="t" for="contaPessoal"><span class="num">31</span>Você usa alguma ferramenta em conta pessoal, ou paga por você, para trabalhar? Qual e para quê?</label><div class="hint">Queremos saber o que ajuda você hoje, para a empresa poder oferecer isso oficialmente.</div><input type="text" id="contaPessoal" data-in="contaPessoal" value="${esc(S.contaPessoal)}" placeholder="Ex.: uso uma IA para resumir reuniões"></div>
+  </div>${nav()}`;
+}
+function renderCtrl(){
+  return `<div class="stack">${head(7)}<h2>Controle e continuidade</h2></div>
+  <div class="card stack">
+    <div class="q"><span class="t"><span class="num">32</span>Onde fica o histórico de clientes, decisões e acordos da área?</span><div class="hint">Marque todas que se aplicam.</div><div class="chips">${["Pipedrive","Quiver","Planilha ou pasta na rede","E-mail","WhatsApp","Na cabeça das pessoas","Outro lugar"].map(o=>multi("historico",o,S.historico)).join("")}</div>${has(S.historico,["Outro lugar"])?qual("historicoOutro","Qual outro lugar?"):""}</div>
+    <div class="q"><label class="t" for="prazo"><span class="num">33</span>A área tem prazos combinados com clientes, parceiros ou outras áreas? Eles são medidos?</label><input type="text" id="prazo" data-in="prazo" value="${esc(S.prazo)}" placeholder="Ex.: 24h para o RH, mas ninguém mede"></div>
+    <div class="q"><label class="t" for="atraso"><span class="num">34</span>Como você fica sabendo que algo da área está atrasado?</label><input type="text" id="atraso" data-in="atraso" value="${esc(S.atraso)}" placeholder="Ex.: quando o cliente cobra a diretoria"></div>
+    <div class="q"><span class="t"><span class="num">35</span>Se você ficasse duas semanas fora, a área seguiria funcionando?</span><div class="chips">${["Sim","Em parte","Não"].map(o=>chip("ausencia",o,S.ausencia)).join("")}</div><input type="text" id="ausenciaFalta" data-in="ausenciaFalta" value="${esc(S.ausenciaFalta)}" placeholder="O que faltaria para seguir sem você?"></div>
+    <div class="q"><span class="t"><span class="num">36</span>Você sabe com clareza como a sua gestão é avaliada?</span><div class="chips">${["Sim","Mais ou menos","Não"].map(o=>chip("avaliado",o,S.avaliado)).join("")}</div></div>
+  </div>${nav()}`;
+}
+function renderPerc(){
+  const scale = ["1","2","3","4","5"].map(o=>chip("carga",o,S.carga,`style="min-width:48px"`)).join("");
+  return `<div class="stack">${head(8)}<h2>Percepção</h2></div>
+  <div class="card stack">
+    <div class="q"><span class="t"><span class="num">37</span>De 1 a 5, como você avalia a sua carga de trabalho hoje?</span><div class="chips">${scale}</div><div class="hint" style="margin-top:0">1 = tranquila · 5 = acima do que consigo dar conta</div></div>
+    <div class="q"><span class="t"><span class="num">38</span>Com que frequência você estende o horário ou trabalha no fim de semana?</span><div class="chips">${["Nunca","Raramente","Toda semana","Quase todo dia"].map(o=>chip("horaExtra",o,S.horaExtra)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">39</span>Na sua percepção, quanto do seu tempo vai hoje para gestão de fato (pessoas, indicadores, planejamento, decisões)?</span><div class="chips">${PCT.map(o=>chip("pctGestaoHoje",o,S.pctGestaoHoje)).join("")}</div></div>
+    <div class="q"><span class="t"><span class="num">40</span>E quanto deveria ser?</span><div class="chips">${PCT.map(o=>chip("pctGestaoIdeal",o,S.pctGestaoIdeal)).join("")}</div></div>
+    <div class="q"><label class="t" for="deixaDeFazer"><span class="num">41</span>O que você deixa de fazer como gestor(a), ou faz com pressa, por falta de tempo?</label><textarea id="deixaDeFazer" data-in="deixaDeFazer">${esc(S.deixaDeFazer)}</textarea></div>
+    <div class="q"><label class="t" for="menorValor"><span class="num">42</span>Qual atividade toma mais do seu tempo e gera menos valor?</label><input type="text" id="menorValor" data-in="menorValor" value="${esc(S.menorValor)}"></div>
+    <div class="q"><label class="t" for="automatizar"><span class="num">43</span>Se pudesse automatizar ou eliminar uma coisa da rotina da área, o que seria?</label><input type="text" id="automatizar" data-in="automatizar" value="${esc(S.automatizar)}"></div>
+    <div class="q"><label class="t" for="precisaCrescer"><span class="num">44</span>Do que a área precisa para crescer sem depender de mais horas suas?</label><textarea id="precisaCrescer" data-in="precisaCrescer">${esc(S.precisaCrescer)}</textarea></div>
+    <div class="q"><label class="t" for="oportunidades"><span class="num">45</span>Você enxerga oportunidades de receita (venda cruzada, mais vidas, novos parceiros) que a área não consegue aproveitar hoje? Por quê?</label><textarea id="oportunidades" data-in="oportunidades">${esc(S.oportunidades)}</textarea></div>
+    <div class="q"><label class="t" for="comentario"><span class="num">46</span>Quer comentar mais alguma coisa? ${opt}</label><textarea id="comentario" data-in="comentario">${esc(S.comentario)}</textarea></div>
+  </div>${nav("Revisar")}`;
+}
+function renderRev(){
+  const acts = allActs(S);
+  const inc = acts.filter(a=>actMissing(a).length);
+  const err = sendError ? `<div class="note err">${esc(sendError)}</div>` : "";
+  return `<div class="stack"><span class="eyebrow">Revisão</span><h2>Confira antes de enviar</h2></div>
+  <div class="card stack">
+    <div class="summary"><div><span>Nome</span><b style="font-size:16px">${esc(S.nome)||"—"}</b></div><div><span>Cargo</span><b style="font-size:16px">${esc(roleOf(S)||"—")}</b></div><div><span>Vertical</span><b style="font-size:16px">${esc(VLABEL[S.vertical]||"—")}</b></div></div>
+    ${summaryHTML()}
+    ${inc.length?`<div class="note err">${inc.length} atividade(s) estão incompletas: ${inc.map(a=>esc(a.nome)).join("; ")}. Volte à etapa de atividades para completar, ou envie assim mesmo.</div>`:`<div class="note">Tudo preenchido. Obrigado pelo tempo!</div>`}
+    ${err}
+  </div>
+  <div class="btns"><button type="button" class="btn" data-go="-1">Voltar</button><div class="row"><button type="button" class="btn" data-jump="3">Editar atividades</button><button type="button" class="btn accent" data-send ${!SHEET_URL?"disabled":""}>Enviar respostas</button></div></div>`;
+}
+function renderDone(){
+  return `<div class="card done stack" style="align-items:center">
+    <svg class="ring" width="64" height="64" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="14" r="8.5" fill="none" stroke="var(--brand)" stroke-width="3.2"/><path d="M6.2 9.2 A8.5 8.5 0 0 1 19.8 9.2" fill="none" stroke="var(--accent)" stroke-width="3.2" stroke-linecap="round"/></svg>
+    <h2>Respostas enviadas</h2>
+    <p class="lead" style="margin:0 auto">Obrigado, ${esc((S.nome||"").split(" ")[0])}! Se lembrar de algo depois, é só abrir este link de novo, ajustar e reenviar.</p>
+    <button type="button" class="btn" data-jump="1">Revisar minhas respostas</button>
+  </div>`;
+}
+let sendError = "", finished = false;
+const RENDER = {intro:renderIntro,id:renderId,dia:renderDia,ativ:renderAtiv,agenda:renderAgenda,time:renderTime,ferr:renderFerr,ctrl:renderCtrl,perc:renderPerc,rev:renderRev};
+function render(){
+  setVertical(); progress();
+  app.innerHTML = finished ? renderDone() : `<div class="stack">${RENDER[STEPS[step].k]()}</div>`;
+}
+function validateStep(){
+  missing = new Set();
+  const k = STEPS[step].k;
+  if(k==="id"){ if(!S.nome.trim()) missing.add("nome"); if(!S.vertical) missing.add("vertical"); if(!S.cargo) missing.add("cargo"); if(S.cargo==="Outro" && !S.cargoOutro.trim()) missing.add("cargoOutro"); return missing.size===0; }
+  if(k==="ativ"){ allActs(S).forEach(a=>{ if(a.sugerida && actMissing(a).length) missing.add(a.nome); }); (S.extras||[]).forEach((a,i)=>{ if(a.nome && actMissing(a).length) missing.add("x"+i); }); return true; }
+  return true;
+}
+async function go(d){
+  if(d>0){ const ok = validateStep(); if(!ok){ render(); return; } if(STEPS[step].k==="ativ" && missing.size && !go.warned){ go.warned = true; render(); return; } }
+  go.warned = false; missing = new Set();
+  step = Math.max(0, Math.min(STEPS.length-1, step+d));
+  render(); window.scrollTo({top:0});
+  if(d>0 && step>1) persist().catch(()=>{});
+}
+
+/* atualização de campos sem re-render */
+function getAct(el){ if(el.dataset.a!=null){ const n = el.dataset.a; return S.atividades[n] || (S.atividades[n]={on:true,classe:SUG_CLASS[n]||""}); } return S.extras[+el.dataset.x]; }
+function refreshCalc(el){ const box = el.closest(".act"); if(!box) return; const a = getAct(el); const c = box.querySelector("[data-calc]"); const h = actHours(a); if(c) c.innerHTML = h?`≈ <b>${fmt(h)} h por semana</b>`:"Preencha quantidade, período e minutos para ver o tempo semanal."; const t = document.querySelector("[data-sum]"); if(t) t.outerHTML = summaryHTML(); }
+app.addEventListener("input", e => {
+  const el = e.target;
+  if(el.dataset.in){ S[el.dataset.in] = el.value; localSave(); return; }
+  if(el.dataset.ai){ const a = getAct(el); a[el.dataset.ai] = el.value;
+    if(el.dataset.ai==="minutos"){ el.closest(".q").querySelectorAll('[data-af="minutos"]').forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===el.value)); }
+    refreshCalc(el); localSave(); }
+});
+app.addEventListener("click", async e => {
+  if(e.target.matches("input,textarea")) return;
+  const b = e.target.closest("button"); if(!b) return;
+  const keepY = window.scrollY;
+  if(b.dataset.go){ go(+b.dataset.go); return; }
+  if(b.dataset.jump){ finished = false; step = +b.dataset.jump; render(); window.scrollTo({top:0}); return; }
+  if(b.dataset.vert){ S.vertical = b.dataset.vert; }
+  else if(b.dataset.f){ S[b.dataset.f] = (S[b.dataset.f]===b.dataset.v && b.dataset.f!=="cargo") ? "" : b.dataset.v; }
+  else if(b.dataset.m){ const arr = S[b.dataset.m] = S[b.dataset.m]||[]; const i = arr.indexOf(b.dataset.v); i>=0?arr.splice(i,1):arr.push(b.dataset.v); }
+  else if(b.dataset.toggle!=null){ const n = b.dataset.toggle; const a = S.atividades[n] || (S.atividades[n]={classe:SUG_CLASS[n]||""}); a.on = !a.on; if(!a.classe) a.classe = SUG_CLASS[n]||""; missing.delete(n); }
+  else if(b.dataset.af){ const a = getAct(b); a[b.dataset.af] = (a[b.dataset.af]===b.dataset.v) ? "" : b.dataset.v; }
+  else if(b.dataset.am){ const a = getAct(b); const arr = a[b.dataset.am] = a[b.dataset.am]||[]; const i = arr.indexOf(b.dataset.v); i>=0?arr.splice(i,1):arr.push(b.dataset.v); }
+  else if(b.hasAttribute("data-addx")){ S.extras = S.extras||[]; S.extras.push({nome:"",classe:""}); render(); const inp = document.getElementById("xn-"+(S.extras.length-1)); inp && inp.focus(); localSave(); return; }
+  else if(b.dataset.delx!=null){ S.extras.splice(+b.dataset.delx,1); missing = new Set(); }
+  else if(b.hasAttribute("data-send")){ b.disabled = true; b.textContent = "Enviando…"; sendError = "";
+    try{ await persist("enviado"); finished = true; render(); window.scrollTo({top:0}); }
+    catch(err){ S.status = "rascunho"; localSave(); sendError = err && err.message==="sem-url" ? "O envio ainda não está configurado. Avise o Leonardo. Suas respostas continuam salvas neste navegador." : "Não foi possível enviar agora. Verifique a conexão e tente de novo. Suas respostas continuam salvas neste navegador."; render(); }
+    return; }
+  else return;
+  localSave(); render(); window.scrollTo({top:keepY});
+});
+
+/* ---------- cálculos e linhas para a planilha ---------- */
+const r2 = n => Math.round((n||0)*100)/100;
+const PERIODO_LABEL = k => (PERIODS.find(p=>p[0]===k)||["",""])[1];
+const withOther = (arr, other) => (arr||[]).join(", ") + (other ? " · " + other : "");
+function calcPerson(r){
+  const acts = allActs(r);
+  const dem = acts.reduce((s,a)=>s+actHours(a),0);
+  const by = {}; CLASSES.forEach(c=>by[c]=0); let semClasse = 0;
+  acts.forEach(a=>{ const h = actHours(a); if(by[a.classe]!=null) by[a.classe]+=h; else semClasse+=h; });
+  const reun = num(r.reunioesHoras), wpp = (WHATS[r.whatsapp]||0)*5, retr = num(r.retrabalhoVezes)*num(r.retrabalhoMin)/60;
+  const deleg = acts.filter(a=>(a.delegavel||"").startsWith("Sim")).reduce((s,a)=>s+actHours(a),0);
+  const auto = acts.filter(a=>a.auto==="Sim").reduce((s,a)=>s+actHours(a),0);
+  const jor = JORNADA_PADRAO, disp = Math.max(jor - reun - wpp, 0.1);
+  return {acts, dem, by, semClasse, reun, wpp, retr, deleg, auto, jor, occ: dem/disp, pctGestao: dem ? by["Gestão"]/dem : 0};
+}
+const PESSOAS_COLS = ["ID","Atualizado em","Nome","Vertical","Cargo","Área que lidera","Status","Tempo no cargo","Pessoas no time","Clientes atendidos",
+  "Jornada","Horas atividades/sem","Reuniões h/sem","WhatsApp+e-mail h/sem","Ocupação %","Gestão h","Execução operacional h","Apoio e administrativo h","Refazer ou corrigir h","% em gestão (atividades)","Delegável h","Automatizável h","Retrabalho declarado h/sem",
+  "Dia típico","Picos","Horário início","Horário fim","Canais","Quem envia",
+  "Reuniões por semana","WhatsApp e e-mail por dia","Interrupções do time por dia","Escalonamentos por semana","Retrabalho vezes/sem","Retrabalho min","Origem incompleta (opções)","Origem incompleta (detalhe)",
+  "Ritos","Indicadores","Distribuição","Sobrecarga no time","Folga no time","Consegue delegar","O que falta para delegar","Só você faz","Revisa o trabalho do time","Precisa contratar","Perfil a contratar",
+  "Sistemas","Duplicidade","Ferramenta que atrapalha","Ferramenta pessoal",
+  "Histórico fica em","Prazo combinado","Descobre atraso","Área segue sem você","O que faltaria","Sabe como é avaliado",
+  "Carga 1-5","Hora extra","% gestão hoje (percepção)","% gestão ideal","Deixa de fazer","Mais tempo menos valor","Automatizaria","Precisa para crescer","Oportunidades de receita","Comentário"];
+const ATIV_COLS = ["ID","Atualizado em","Nome","Vertical","Cargo","Atividade","Sugerida","Quantidade","Período","Minutos","Horas/semana","Classificação","Delegável","Automática","Ferramentas","Depende","De quem"];
+function pessoaRow(r){
+  const c = calcPerson(r);
+  return [r._id,r.atualizadoEm,r.nome,VLABEL[r.vertical]||"",roleOf(r),r.area,r.status,r.tempoCargo,r.timeQtd,r.carteiraQtd,
+    c.jor,r2(c.dem),r2(c.reun),r2(c.wpp),Math.round(c.occ*100),r2(c.by["Gestão"]),r2(c.by["Execução operacional"]),r2(c.by["Apoio e administrativo"]),r2(c.by["Refazer ou corrigir"]),Math.round(c.pctGestao*100),r2(c.deleg),r2(c.auto),r2(c.retr),
+    r.dia,r.picos,r.horaInicio,r.horaFim,withOther(r.canais,r.canaisOutro),withOther(r.origens,r.origensOutra),
+    r.reunioesQtd,r.whatsapp,r.interrupcoes,r.escalonamentos,r.retrabalhoVezes,r.retrabalhoMin,withOther(r.origemOpts,r.origemOutra),r.origemIncompleto,
+    (r.ritos||[]).join(", "),r.indicadores,r.distribuicao,r.sobrecarga,r.folga,r.delegar,withOther(r.delegarFalta,r.delegarFaltaOutro),r.soVoce,r.revisa,r.contratar,r.perfilContratar,
+    withOther(r.sistemas,r.sistemasOutros),r.duplicidade,r.ferramentaAtrapalha,r.contaPessoal,
+    withOther(r.historico,r.historicoOutro),r.prazo,r.atraso,r.ausencia,r.ausenciaFalta,r.avaliado,
+    r.carga,r.horaExtra,r.pctGestaoHoje,r.pctGestaoIdeal,r.deixaDeFazer,r.menorValor,r.automatizar,r.precisaCrescer,r.oportunidades,r.comentario].map(v=>v==null?"":v);
+}
+function atividadeRows(r){
+  return allActs(r).map(a=>[r._id,r.atualizadoEm,r.nome,VLABEL[r.vertical]||"",roleOf(r),a.nome,a.sugerida?"Sim":"Não",num(a.qtd)||"",PERIODO_LABEL(a.periodo),num(a.minutos)||"",r2(actHours(a)),a.classe,a.delegavel,a.auto,withOther(a.ferramentas,a.ferramentasOutra),a.depende,a.dependeDe].map(v=>v==null?"":v));
+}
+function buildPayload(r){
+  return {versao:1, questionario:"gestores", id:r._id, atualizadoEm:r.atualizadoEm, nome:r.nome,
+    pessoas:{cabecalho:PESSOAS_COLS, linha:pessoaRow(r)},
+    atividades:{cabecalho:ATIV_COLS, linhas:atividadeRows(r)},
+    json:JSON.stringify(r)};
+}
+
+/* ---------- início ---------- */
+const local = localLoad(); if(local && local.S){ S = {...blank(), ...local.S}; if(typeof local.step==="number") step = local.step; if(S.status==="enviado") finished = true; }
+myId = getId();
+render();
+})();
+</script>
+</body></html>
